@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog AI 應用推進與專案進度報告</title>
+    <style>
+        :root {
+            --bg-color: #0b132b;
+            --card-bg: #1e293b;
+            --card-hover: #253349;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-green: #34d399;
+            --accent-purple: #c084fc;
+            --accent-amber: #fbbf24;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 90vw;
+            max-width: 1280px;
+            height: 82vh;
+            max-height: 800px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide {
+            padding: 40px 50px;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .slide-title {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .slide-subtitle {
+            font-size: 1.02rem;
+            color: var(--text-sub);
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        /* 網格系統 */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            flex-grow: 1;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        /* 模組化精緻卡片 */
+        .card {
+            background-color: rgba(15, 23, 42, 0.55);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            background-color: rgba(30, 41, 59, 0.7);
+        }
+
+        .card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            color: var(--accent-purple);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 第二頁專屬視覺圖示卡片樣式 */
+        .overview-card {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-blue);
+        }
+
+        .overview-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .overview-card h3 {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .overview-card p {
+            color: var(--text-sub);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .feature-block {
+            background: rgba(30, 41, 59, 0.5);
+            border-left: 3px solid var(--accent-blue);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .feature-block.warning {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .feature-block.success {
+            border-left-color: var(--accent-green);
+            background: rgba(52, 211, 153, 0.05);
+        }
+
+        .feature-block.amber {
+            border-left-color: var(--accent-amber);
+            background: rgba(251, 191, 36, 0.05);
+        }
+
+        .feature-title {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .feature-desc {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
+
+        .badge {
+            background-color: rgba(56, 189, 248, 0.12);
+            color: var(--accent-blue);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            letter-spacing: 0.5px;
+        }
+
+        /* 控制導航列 */
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50px;
+            right: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(51, 65, 85, 0.5);
+            padding-top: 15px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            background-color: #1e293b;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--accent-blue);
+            color: #0b132b;
+            border-color: var(--accent-blue);
+            transform: translateY(-1px);
+        }
+
+        .slide-counter {
+            color: var(--text-sub);
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title-slide h1 {
+            font-size: 2.8rem;
+            color: var(--accent-blue);
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .title-slide p {
+            font-size: 1.15rem;
+            color: var(--text-sub);
+            max-width: 800px;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        /* 原生流暢流程圖樣式 */
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            padding: 4px 0;
+        }
+
+        .flow-node {
+            background-color: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--accent-blue);
+            color: var(--text-main);
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+            width: 95%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .flow-node.condition {
+            border-color: var(--accent-amber);
+            background-color: rgba(251, 191, 36, 0.08);
+            color: var(--accent-amber);
+            font-weight: 600;
+        }
+
+        .flow-node.endpoint {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+        }
+
+        .flow-node.success {
+            border-color: var(--accent-green);
+            background-color: rgba(52, 211, 153, 0.1);
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            color: var(--text-sub);
+            font-size: 0.78rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .flow-arrow span {
+            font-size: 0.68rem;
+            background-color: #334155;
+            color: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        
+        <!-- Slide 1: 封面 -->
+        <div class="slide active title-slide">
+            <div><span class="badge" style="margin-bottom: 16px;">月度專案進度匯報</span></div>
+            <h1>Dog AI 應用推進與專案進度報告</h1>
+            <p>Dog 智慧查案 Agent、systemxx 數據斷點診斷，與 DA API / AI Cowork 生態系串接</p>
+            <div style="color: var(--accent-amber); font-weight: 500; font-size: 0.95rem;">彙報團隊：Dog與後端工程團隊</div>
+        </div>
+
+        <!-- Slide 2: 總覽 (改用視覺化圖示卡片，無下方小標籤) -->
+        <div class="slide">
+            <div class="slide-title">本月三大 AI 核心專案總覽 (Executive Agenda)</div>
+            <div class="slide-subtitle">推動製造數據自動化、知識沈澱與生態系串接的核心藍圖</div>
+            <div class="grid-3">
+                <div class="overview-card">
+                    <div class="overview-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-blue);">🧠</div>
+                    <h3>01. Dog 智慧查案</h3>
+                    <p>將歷史結案報告透過 GraphRAG 轉化為圖譜，並結合 LLM 學習 DAO 映射關係，實現知識自動沈澱與查案自動化。</p>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-icon" style="background: rgba(52, 211, 153, 0.15); color: var(--accent-green);">⚙️</div>
+                    <h3>02. systemxx 斷點診斷</h3>
+                    <p>把繁雜的 Loader SQL 追蹤邏輯自動化，開發診斷 API 並封裝為標準 MCP Tool，大幅提升偵錯效率與值班響應速度。</p>
+                </div>
+                <div class="overview-card">
+                    <div class="overview-icon" style="background: rgba(192, 132, 252, 0.15); color: var(--accent-purple);">🔗</div>
+                    <h3>03. DA API & Cowork</h3>
+                    <p>系統化重構系統 API 轉化為 AI 易讀格式，封裝為標準 MCP 工具無縫對接部門級 AI 協作生態系。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Dog 1 -->
+        <div class="slide">
+            <div class="slide-title">[專案一-1] AI Agent —— 歷史 PPT 與 GraphRAG 建置</div>
+            <div class="slide-subtitle">把散落的結案報告轉化為結構化知識圖譜</div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3 style="color: #ef4444;">❌ 傳統痛點與瓶頸</h3>
+                    <div class="feature-block warning">
+                        <div class="feature-title">歷史經驗碎片化</div>
+                        <div class="feature-desc">重大 Dog 異常結案報告 (PPT) 散落各處，內含寶貴的 Issue、Root Cause 與 Playbook，但全為非結構化文字。</div>
+                    </div>
+                    <div class="feature-block warning">
+                        <div class="feature-title">經驗傳承成本高</div>
+                        <div class="feature-desc">新進工程師面對重複發生的機台異常，往往需要耗費大量時間翻閱舊檔案或靠口耳相傳。</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--accent-green);">✨ GraphRAG 解決方案</h3>
+                    <div class="feature-block success">
+                        <div class="feature-title">自動化知識圖譜化</div>
+                        <div class="feature-desc">自動吞噬過去一年重大 Dog 結案報告，萃取核心因果關係並建立檢索圖譜。</div>
+                    </div>
+                    <div class="feature-block success">
+                        <div class="feature-title">智慧查詢與對應</div>
+                        <div class="feature-desc">系統能主動推薦：「當發生特定 Issue 時，歷史上通常有哪些標準查案手法 (Playbook)」。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Dog 2 -->
+        <div class="slide">
+            <div class="slide-title">[專案一-2] AI Agent —— DAO 映射與 Mapping 機制實作</div>
+            <div class="slide-subtitle">現階段實戰做法與 LLM 學習驗證</div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>🛠️ 現階段實作方式</h3>
+                    <div class="feature-block">
+                        <div class="feature-title">實戰導向的 LLM 學習法</div>
+                        <div class="feature-desc">目前尚未建立龐大 Wiki，而是將系統內的 DAO 名稱、Input/Output 格式與欄位定義，直接與歷史查案手法一同餵給 LLM。</div>
+                    </div>
+                    <div class="feature-block">
+                        <div class="feature-title">關聯對應建立</div>
+                        <div class="feature-desc">讓模型自主學習並建立「查案需求 ➔ 對應 DAO 呼叫」之間的對應關係，加速自動化進程。</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--accent-amber);">⚠️ 面臨挑戰與下一步</h3>
+                    <div class="feature-block amber">
+                        <div class="feature-title">半導體加密欄位考驗</div>
+                        <div class="feature-desc">資料庫欄位代碼加密過深，直接交由 LLM 學習會面臨語意對齊與準確度挑戰。</div>
+                    </div>
+                    <div class="feature-block amber">
+                        <div class="feature-title">持續優化與評估</div>
+                        <div class="feature-desc">持續優化 Prompt 結構，並逐步導入人工驗證機制，確保 Agent 推薦結果 100% 可靠。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: systemxx Flowchart -->
+        <div class="slide">
+            <div class="slide-title">[專案二] systemxx 系統 —— 資料斷點自動化診斷邏輯</div>
+            <div class="slide-subtitle">從手動追蹤數百行 SQL，到 API 驅動的智慧斷點排查</div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>🔍 斷點自動診斷原理</h3>
+                    <div class="feature-block warning">
+                        <div class="feature-title">As-Is 傳統痛點</div>
+                        <div class="feature-desc">使用者回報系統沒看到資料時，工程師需人工回溯數百行複雜 Loader SQL，逐段檢查在哪個條件判斷式被過濾。</div>
+                    </div>
+                    <div class="feature-block success" style="margin-top: 12px;">
+                        <div class="feature-title">To-Be 自動化改善</div>
+                        <div class="feature-desc">開發自動化診斷 API，自動模擬資料流向與條件判斷，精準回報資料是在哪一個步驟因為不符合條件而中斷。</div>
+                    </div>
+                </div>
+                
+                <div class="card" style="background-color: rgba(11, 19, 43, 0.7); justify-content: center;">
+                    <h3 style="text-align: center; font-size: 0.95rem; margin-bottom: 6px; color: var(--accent-blue);">📊 診斷 API 自動化檢索流程</h3>
+                    <div class="flow-container">
+                        <div class="flow-node">1. User 回報：systemxx 無近點資料</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-node condition">2. Query 該時間區間是否有進站/過貨紀錄？</div>
+                        <div class="flow-arrow"><span>否</span> → <span style="background:none; color:#fca5a5;">【斷點】時間區間無進站資料</span></div>
+                        <div class="flow-arrow">↓ <span>是</span></div>
+                        <div class="flow-node condition">3. 檢查是否有該項目的量測/FDC紀錄？</div>
+                        <div class="flow-arrow"><span>否</span> → <span style="background:none; color:#fca5a5;">【斷點】未量測或未觸發參數</span></div>
+                        <div class="flow-arrow">↓ <span>是</span></div>
+                        <div class="flow-node condition">4. 跑 Loader SQL 條件判定式過濾</div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-node success">5. 精準定位：回傳被哪一行 SQL 條件過濾</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: systemxx MCP -->
+        <div class="slide">
+            <div class="slide-title">[專案二延伸] systemxx MCP Tool 與多元應用場景</div>
+            <div class="slide-subtitle">封裝為標準協議，賦能企業與前端查案介面</div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3 style="color: var(--accent-blue);">🌐 模型上下文協議 (MCP) 封裝</h3>
+                    <div class="feature-block">
+                        <div class="feature-title">標準化協議封裝</div>
+                        <div class="feature-desc">將 systemxx 斷點診斷 API 封裝為標準化的 **MCP Tool**，讓 AI 模型能夠原生調用該工具進行邏輯推理。</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--accent-green);">🚀 兩大落地應用場景</h3>
+                    <div class="feature-block success">
+                        <div class="feature-title">ERD / AI Copilot 整合</div>
+                        <div class="feature-desc">掛載至企業研發助理，讓使用者以自然語言發問：「為什麼某 Lot 沒看到？」，秒級獲得自動診斷結果。</div>
+                    </div>
+                    <div class="feature-block success" style="margin-top: 10px;">
+                        <div class="feature-title">值班前端儀表板 (UI)</div>
+                        <div class="feature-desc">結合 AI 快速生成前端畫面，讓值班人員透過視覺化表單 Call API，大幅降低 Troubleshooting 門檻。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: DA API -->
+        <div class="slide">
+            <div class="slide-title">[專案三] systemxx API 模組化與 AI Cowork 串接</div>
+            <div class="slide-subtitle">打造部門級的 AI 工具生態系（本項由協作同事主導推進）</div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3 style="color: var(--accent-purple);">📦 系統 API 模組化與格式重構</h3>
+                    <div class="feature-block">
+                        <div class="feature-title">API 語意清理</div>
+                        <div class="feature-desc">系統化抽取 DA（Data Access）相關系統 API，進行語意清理與格式重構。</div>
+                    </div>
+                    <div class="feature-block" style="margin-top: 10px;">
+                        <div class="feature-title">AI 友善格式</div>
+                        <div class="feature-desc">使其轉化為「AI 最佳讀取與呼叫格式」，為後續工具調用奠定良好基礎。</div>
+                    </div>
+                </div>
+                <div class="card" style="border-left: 4px solid var(--accent-purple);">
+                    <h3 style="color: var(--accent-purple);">🤝 部門級 AI Cowork 串接</h3>
+                    <div class="feature-block" style="border-left-color: var(--accent-purple);">
+                        <div class="feature-title">標準 MCP 協議工具化</div>
+                        <div class="feature-desc">將重構後的 DA API 封裝為標準 MCP 協議工具，無縫對接到部門級的 **AI Cowork 協作系統**中。</div>
+                    </div>
+                    <div style="margin-top: 12px; color: var(--text-sub); font-size: 0.85rem; font-style: italic;">
+                        *(註：本模組細節由協作同事負責進度說明與技術展示)*
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Learnings & KPIs -->
+        <div class="slide">
+            <div class="slide-title">專案實戰反思與每月追蹤指標 (Learnings & KPIs)</div>
+            <div class="slide-subtitle">持之以恆的架構優化與效益量化</div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>💡 專案關鍵學習 (Key Learnings)</h3>
+                    <div class="feature-block amber">
+                        <div class="feature-title">語意對齊的極限與突破</div>
+                        <div class="feature-desc">直接讓 LLM 學習 DAO 與查案手法雖快速，但在半導體加密欄位下仍需更穩健的業務語意輔助。</div>
+                    </div>
+                    <div class="feature-block success" style="margin-top: 10px;">
+                        <div class="feature-title">工具化 (MCP) 效益極大化</div>
+                        <div class="feature-desc">將後端複雜邏輯封裝為 API / MCP Tool 後，能同時賦能 Chatbot 與前端 UI，擴充性極高。</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>📊 月度定期追蹤指標 (Monthly KPIs)</h3>
+                    <div class="feature-block">
+                        <div class="feature-title">Dog 查案進度</div>
+                        <div class="feature-desc">歷史 PPT GraphRAG 建置比例與 DAO Mapping 測試準確率。</div>
+                    </div>
+                    <div class="feature-block" style="margin-top: 8px;">
+                        <div class="feature-title">systemxx 診斷覆蓋率</div>
+                        <div class="feature-desc">核心 Loader 異常自動化診斷 API 開發與上線數。</div>
+                    </div>
+                    <div class="feature-block" style="margin-top: 8px;">
+                        <div class="feature-title">生態系擴展</div>
+                        <div class="feature-desc">DA API 接入部門 AI Cowork 的工具上線數。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer / Navigation -->
+        <div class="controls">
+            <div class="slide-counter" id="slideCounter">Slide 1 / 8</div>
+            <div class="btn-group">
+                <button onclick="prevSlide()">❮ 上一頁</button>
+                <button onclick="nextSlide()">下一頁 ❯</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const slideCounter = document.getElementById('slideCounter');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+            slideCounter.textContent = `Slide ${currentSlide + 1} / ${slides.length}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+    </script>
+</body>
+</html>
